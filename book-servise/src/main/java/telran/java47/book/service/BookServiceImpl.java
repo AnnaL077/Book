@@ -59,7 +59,7 @@ public class BookServiceImpl implements BookService {
 	public BookDto removeBook(String isbn) {
 		Book book = bookRepository.findById(isbn).orElseThrow(EntityNotFoundException::new);
 		bookRepository.delete(book);
-		return  modelMapper.map(book, BookDto.class);
+		return modelMapper.map(book, BookDto.class);
 	}
 	
 	@Override
@@ -72,8 +72,8 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public Set<BookDto> findBooksByAuthor(String authorName) {
-		Author author = authorRepository.findById(authorName).orElseThrow(EntityNotFoundException::new);		
-		return bookRepository.findBooksByAuthorsContains(author).stream()
+	
+		return bookRepository.findBooksByAuthorsName(authorName).stream()
 				.map(b -> modelMapper.map(b, BookDto.class))
 				.collect(Collectors.toSet());
 
@@ -81,8 +81,7 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public Set<BookDto> findBooksByPublisher(String publisher) {
-		Publisher publisher3 = publisherRepository.findById(publisher).orElseThrow(EntityNotFoundException::new);
-		return bookRepository.findBooksByPublisher(publisher3).stream()
+		return bookRepository.findBooksByPublisherPublisherName(publisher).stream()
 			.map(b -> modelMapper.map(b, BookDto.class))
 			.collect(Collectors.toSet());
 
@@ -97,17 +96,18 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public Set<String> findPublishersByAuthor(String authorName) {
-		return findBooksByAuthor(authorName).stream()
-			.map(b -> b.getPublisher())
+		return bookRepository.findBooksByAuthorsName(authorName).stream()
+			.map(b -> b.getPublisher().getPublisherName())
 			.distinct().collect(Collectors.toSet());
 	}
 
 	@Override
+	@Transactional
 	public AuthorDto removeAuthor(String authorName) {
-		findBooksByAuthor(authorName).stream()
-			.forEach(b -> removeBook(b.getIsbn()));	
+		bookRepository.findBooksByAuthorsName(authorName).stream()
+			.forEach(b -> bookRepository.delete(b));	
 		Author author = authorRepository.findById(authorName).orElseThrow(EntityNotFoundException::new);
-		authorRepository.deleteById(authorName);
+		authorRepository.delete(author);
 		return modelMapper.map(author, AuthorDto.class);
 	}
 

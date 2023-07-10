@@ -8,16 +8,16 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import telran.java47.book.model.Author;
 import telran.java47.book.model.Book;
-import telran.java47.book.model.Publisher;
+
 
 
 
 
 public interface BookRepository extends PagingAndSortingRepository<Book, String> {
 	
-	List<Book> findBooksByAuthorsContains(Author author);
+	List<Book> findBooksByAuthorsName(String name);
 	
-	List<Book> findBooksByPublisher(Publisher publisher);
+	List<Book> findBooksByPublisherPublisherName(String publisherName);
 	
 	@Query("select b.authors from Book b where b.isbn=?1")
 	List<Author> findAuthorsByIsbn(String isbn);
