@@ -6,7 +6,7 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
+
 
 import org.springframework.stereotype.Repository;
 
@@ -27,14 +27,16 @@ public class BookRepositoryImpl implements BookRepository {
 
 	@Override
 	public List<Book> findBooksByPublisherPublisherName(String publisherName) {
-		// TODO Auto-generated method stub
-		return null;
+		TypedQuery<Book> query = em.createQuery("select b from Book b join  b.publisher p where p.publisherName=?1", Book.class);
+		query.setParameter(1, publisherName);
+		return query.getResultList();
 	}
 
 	@Override
 	public List<Author> findAuthorsByIsbn(String isbn) {
-		// TODO Auto-generated method stub
-		return null;
+		TypedQuery<Author> query = em.createQuery("select b.authors from Book b where b.isbn=?1", Author.class);
+		query.setParameter(1, isbn);
+		return query.getResultList();
 	}
 
 	@Override
@@ -43,7 +45,6 @@ public class BookRepositoryImpl implements BookRepository {
 	}
 
 	@Override
-	//@Transactional
 	public Book save(Book book) {
 		em.persist(book);
 		return book;
@@ -56,8 +57,7 @@ public class BookRepositoryImpl implements BookRepository {
 
 	@Override
 	public void deleteById(String isbn) {
-		// TODO Auto-generated method stub
-
+		em.remove(em.find(Book.class, isbn));
 	}
 
 }

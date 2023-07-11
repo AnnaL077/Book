@@ -4,8 +4,6 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-
 import org.springframework.stereotype.Repository;
 
 import telran.java47.book.model.Author;
@@ -21,7 +19,6 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 	}
 
 	@Override
-	//@Transactional
 	public Author save(Author author) {
 		em.persist(author);
 		//em.merge(author);
@@ -30,7 +27,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 
 	@Override
 	public void delete(Author author) {
-		// TODO Auto-generated method stub
+		em.remove(author);
 
 	}
 

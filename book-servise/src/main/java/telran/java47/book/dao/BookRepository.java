@@ -8,11 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import telran.java47.book.model.Author;
 import telran.java47.book.model.Book;
-import telran.java47.book.model.Publisher;
-
-
-
-
 
 public interface BookRepository {
 	

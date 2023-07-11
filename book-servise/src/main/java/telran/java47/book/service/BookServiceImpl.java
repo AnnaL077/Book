@@ -82,8 +82,7 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public Set<BookDto> findBooksByPublisher(String publisher) {
-		Publisher publisher2 = publisherRepository.findById(publisher).orElseThrow(EntityNotFoundException::new);
-		return publisher2.getBooks().stream()
+		return bookRepository.findBooksByPublisherPublisherName(publisher).stream()
 			.map(b -> modelMapper.map(b, BookDto.class))
 			.collect(Collectors.toSet());
 	}
