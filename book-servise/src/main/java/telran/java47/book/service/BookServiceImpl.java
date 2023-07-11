@@ -37,11 +37,11 @@ public class BookServiceImpl implements BookService {
 		}
 
 		Publisher publisher =publisherRepository.findById(bookDto.getPublisher())
-				.orElse(publisherRepository.save(new Publisher(bookDto.getPublisher())));
+				.orElseGet(() -> publisherRepository.save(new Publisher(bookDto.getPublisher())));
 		
 		Set<Author> authors = bookDto.getAuthors().stream()
 				.map(a -> authorRepository.findById(a.getName())
-						.orElse(authorRepository.save(new Author(a.getName(), a.getBirthDate()))))
+						.orElseGet(() -> authorRepository.save(new Author(a.getName(), a.getBirthDate()))))
 				.collect(Collectors.toSet());
 		Book book = new Book(bookDto.getIsbn(), bookDto.getTitle(), authors, publisher);
 		bookRepository.save(book);
@@ -58,7 +58,7 @@ public class BookServiceImpl implements BookService {
 	@Transactional
 	public BookDto removeBook(String isbn) {
 		Book book = bookRepository.findById(isbn).orElseThrow(EntityNotFoundException::new);
-		bookRepository.delete(book);
+		bookRepository.deleteById(isbn);
 		return modelMapper.map(book, BookDto.class);
 	}
 	
@@ -72,19 +72,20 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public Set<BookDto> findBooksByAuthor(String authorName) {
-	
-		return bookRepository.findBooksByAuthorsName(authorName).stream()
-				.map(b -> modelMapper.map(b, BookDto.class))
-				.collect(Collectors.toSet());
+		Author author =  authorRepository.findById(authorName).orElseThrow(EntityNotFoundException::new);
+		return author.getBooks().stream()
+			.map(b -> modelMapper.map(b, BookDto.class))
+			.collect(Collectors.toSet());
+
 
 	}
 
 	@Override
 	public Set<BookDto> findBooksByPublisher(String publisher) {
-		return bookRepository.findBooksByPublisherPublisherName(publisher).stream()
+		Publisher publisher2 = publisherRepository.findById(publisher).orElseThrow(EntityNotFoundException::new);
+		return publisher2.getBooks().stream()
 			.map(b -> modelMapper.map(b, BookDto.class))
 			.collect(Collectors.toSet());
-
 	}
 
 	@Override
@@ -105,7 +106,7 @@ public class BookServiceImpl implements BookService {
 	@Transactional
 	public AuthorDto removeAuthor(String authorName) {
 		bookRepository.findBooksByAuthorsName(authorName).stream()
-			.forEach(b -> bookRepository.delete(b));	
+			.forEach(b -> bookRepository.deleteById(b.getIsbn()));	
 		Author author = authorRepository.findById(authorName).orElseThrow(EntityNotFoundException::new);
 		authorRepository.delete(author);
 		return modelMapper.map(author, AuthorDto.class);
